@@ -96,11 +96,17 @@ cd finance_tracker
 3. Run `supabase_schema.sql` in the SQL Editor
 
 ### 3. Configure environment
+Create a `.env` or pass via `--dart-define`:
+```bash
+flutter run \
+  --dart-define=SUPABASE_URL=https://YOUR_PROJECT.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=YOUR_ANON_KEY
+```
 
-Pass in `lib/main.dart`:
+Or replace defaults in `lib/main.dart`:
 ```dart
-url: 'https://qluwcrdguizlatyslein.supabase.co',
-anonKey: 'sb_publishable_Fddhu6EXZFQ1YgXZUbG_LA_WtFafOfu',
+url: 'https://YOUR_PROJECT.supabase.co',
+anonKey: 'YOUR_ANON_KEY',
 ```
 
 ### 4. Install dependencies & run
