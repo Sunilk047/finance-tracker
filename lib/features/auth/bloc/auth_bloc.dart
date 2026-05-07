@@ -1,124 +1,101 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:async';
+
+import 'package:bloc/bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../services/supabase_service.dart';
+part 'auth_bloc.freezed.dart';
+part 'auth_event.dart';
+part 'auth_state.dart';
 
-// ─── Events ───────────────────────────────────────────────────
-abstract class AuthEvent extends Equatable {
-  const AuthEvent();
-  @override List<Object?> get props => [];
-}
-
-class AuthLoginRequested extends AuthEvent {
-  final String email;
-  final String password;
-  const AuthLoginRequested({required this.email, required this.password});
-  @override List<Object?> get props => [email, password];
-}
-
-class AuthSignUpRequested extends AuthEvent {
-  final String email;
-  final String password;
-  const AuthSignUpRequested({required this.email, required this.password});
-  @override List<Object?> get props => [email, password];
-}
-
-class AuthLogoutRequested extends AuthEvent {
-  const AuthLogoutRequested();
-}
-
-class AuthCheckRequested extends AuthEvent {
-  const AuthCheckRequested();
-}
-
-// ─── States ───────────────────────────────────────────────────
-abstract class AuthState extends Equatable {
-  const AuthState();
-  @override List<Object?> get props => [];
-}
-
-class AuthInitial extends AuthState {
-  const AuthInitial();
-}
-
-class AuthLoading extends AuthState {
-  const AuthLoading();
-}
-
-class AuthAuthenticated extends AuthState {
-  final String email;
-  final String userId;
-  const AuthAuthenticated({required this.email, required this.userId});
-  @override List<Object?> get props => [email, userId];
-}
-
-class AuthUnauthenticated extends AuthState {
-  const AuthUnauthenticated();
-}
-
-class AuthSignUpSuccess extends AuthState {
-  const AuthSignUpSuccess();
-}
-
-class AuthFailure extends AuthState {
-  final String message;
-  const AuthFailure(this.message);
-  @override List<Object?> get props => [message];
-}
-
-// ─── BLoC ─────────────────────────────────────────────────────
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc() : super(const AuthInitial()) {
-    on<AuthCheckRequested>(_onCheck);
-    on<AuthLoginRequested>(_onLogin);
-    on<AuthSignUpRequested>(_onSignUp);
-    on<AuthLogoutRequested>(_onLogout);
+  AuthBloc() : super(AuthState()) {
+    on<_CheckAuth>(_onCheckAuth);
+    on<_Login>(_onLogin);
+    on<_SignUp>(_onSignUp);
+    on<_Logout>(_onLogout);
+    on<_ResetAuthStatus>(_onResetAuthStatus);
   }
 
-  void _onCheck(AuthCheckRequested e, Emitter<AuthState> emit) {
+  Future<void> _onCheckAuth(_CheckAuth event, Emitter<AuthState> emit) async {
     final user = SupabaseService.currentUser;
+
     if (user != null) {
-      emit(AuthAuthenticated(email: user.email ?? '', userId: user.id));
+      emit(state.copyWith(status: AuthStatus.authenticated, email: user.email ?? '', userId: user.id));
     } else {
-      emit(const AuthUnauthenticated());
+      emit(state.copyWith(status: AuthStatus.unauthenticated));
     }
   }
 
-  Future<void> _onLogin(AuthLoginRequested e, Emitter<AuthState> emit) async {
-    emit(const AuthLoading());
+  Future<void> _onLogin(_Login event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(loginStatus: AuthStatus.loading, status: AuthStatus.loading, error: ''));
+
     try {
-      final res = await SupabaseService.signIn(email: e.email, password: e.password);
+      final res = await SupabaseService.signIn(email: event.email, password: event.password);
+
       final user = res.user;
+
       if (user != null) {
-        emit(AuthAuthenticated(email: user.email ?? '', userId: user.id));
+        emit(state.copyWith(loginStatus: AuthStatus.success, status: AuthStatus.authenticated, email: user.email ?? '', userId: user.id));
       } else {
-        emit(const AuthFailure('Login failed. Please try again.'));
+        emit(state.copyWith(loginStatus: AuthStatus.error, status: AuthStatus.error, error: 'Login failed. Please try again.'));
       }
     } catch (err) {
-      emit(AuthFailure(_parseError(err)));
+      emit(state.copyWith(loginStatus: AuthStatus.error, status: AuthStatus.error, error: _parseError(err)));
     }
   }
 
-  Future<void> _onSignUp(AuthSignUpRequested e, Emitter<AuthState> emit) async {
-    emit(const AuthLoading());
+  Future<void> _onSignUp(_SignUp event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(signUpStatus: AuthStatus.loading, status: AuthStatus.loading, error: ''));
+
     try {
-      await SupabaseService.signUp(email: e.email, password: e.password);
-      emit(const AuthSignUpSuccess());
+      await SupabaseService.signUp(email: event.email, password: event.password);
+
+      emit(state.copyWith(signUpStatus: AuthStatus.success, status: AuthStatus.success));
     } catch (err) {
-      emit(AuthFailure(_parseError(err)));
+      emit(state.copyWith(signUpStatus: AuthStatus.error, status: AuthStatus.error, error: _parseError(err)));
     }
   }
 
-  Future<void> _onLogout(AuthLogoutRequested e, Emitter<AuthState> emit) async {
-    await SupabaseService.signOut();
-    emit(const AuthUnauthenticated());
+  Future<void> _onLogout(_Logout event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(logoutStatus: AuthStatus.loading, status: AuthStatus.loading));
+
+    try {
+      await SupabaseService.signOut();
+
+      emit(state.copyWith(logoutStatus: AuthStatus.success, status: AuthStatus.unauthenticated, email: '', userId: ''));
+    } catch (err) {
+      emit(state.copyWith(logoutStatus: AuthStatus.error, status: AuthStatus.error, error: _parseError(err)));
+    }
+  }
+
+  void _onResetAuthStatus(_ResetAuthStatus event, Emitter<AuthState> emit) {
+    emit(
+      state.copyWith(
+        loginStatus: AuthStatus.initial,
+        signUpStatus: AuthStatus.initial,
+        logoutStatus: AuthStatus.initial,
+        status: AuthStatus.initial,
+        error: '',
+      ),
+    );
   }
 
   String _parseError(Object err) {
     final msg = err.toString().toLowerCase();
-    if (msg.contains('invalid login')) return 'Invalid email or password.';
-    if (msg.contains('already registered')) return 'Email already in use.';
-    if (msg.contains('weak password')) return 'Password is too weak.';
+
+    if (msg.contains('invalid login')) {
+      return 'Invalid email or password.';
+    }
+
+    if (msg.contains('already registered')) {
+      return 'Email already in use.';
+    }
+
+    if (msg.contains('weak password')) {
+      return 'Password is too weak.';
+    }
+
     return 'Something went wrong. Please try again.';
   }
 }

@@ -15,36 +15,51 @@ class TransactionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final tx = transaction;
     return AppCard(
-      child: Row(children: [
-        Container(
-          width: 44, height: 44,
-          decoration: BoxDecoration(
-            color: tx.isIncome ? AppColors.incomeLight : AppColors.expenseLight,
-            borderRadius: BorderRadius.circular(12),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(color: tx.isIncome ? AppColors.incomeLight : AppColors.expenseLight, borderRadius: BorderRadius.circular(12)),
+            child: Icon(
+              tx.isIncome ? Icons.south_west_rounded : Icons.north_east_rounded,
+              color: tx.isIncome ? AppColors.income : AppColors.expense,
+              size: 20,
+            ),
           ),
-          child: Icon(tx.isIncome ? Icons.south_west_rounded : Icons.north_east_rounded, color: tx.isIncome ? AppColors.income : AppColors.expense, size: 20),
-        ),
-        const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(tx.title, style: AppTextStyles.h3, maxLines: 1, overflow: TextOverflow.ellipsis),
-          if (tx.note != null && tx.note!.isNotEmpty) ...[
-            const SizedBox(height: 2),
-            Text(tx.note!, style: AppTextStyles.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-          ],
-          const SizedBox(height: 3),
-          Text(AppFormatters.time(tx.createdAt), style: AppTextStyles.labelSmall),
-        ])),
-        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          AmountText(amount: tx.amount, isIncome: tx.isIncome, style: AppTextStyles.amountMedium),
-          const SizedBox(height: 4),
-          TransactionTypeBadge(isIncome: tx.isIncome),
-        ]),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () => _confirmDelete(context),
-          child: Padding(padding: const EdgeInsets.all(4), child: Icon(Icons.delete_outline_rounded, color: AppColors.ink300, size: 18)),
-        ),
-      ]),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(tx.title, style: AppTextStyles.h3, maxLines: 1, overflow: TextOverflow.ellipsis),
+                if (tx.note != null && tx.note!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(tx.note!, style: AppTextStyles.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                ],
+                const SizedBox(height: 3),
+                Text(AppFormatters.time(tx.createdAt), style: AppTextStyles.labelSmall),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              AmountText(amount: tx.amount, isIncome: tx.isIncome, style: AppTextStyles.amountMedium),
+              const SizedBox(height: 4),
+              TransactionTypeBadge(isIncome: tx.isIncome),
+            ],
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => _confirmDelete(context),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Icon(Icons.delete_outline_rounded, color: AppColors.ink300, size: 18),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

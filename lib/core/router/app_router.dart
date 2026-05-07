@@ -7,10 +7,10 @@ import '../../models/models.dart';
 
 /// Named route constants — single source of truth.
 abstract class AppRoutes {
-  static const auth         = '/auth';
-  static const accounts     = '/accounts';
+  static const auth = '/auth';
+  static const accounts = '/accounts';
   static const transactions = '/transactions';
-  static const profile      = '/profile';
+  static const profile = '/profile';
 }
 
 /// Route generator for Navigator 1.0 (MaterialApp.onGenerateRoute).
@@ -40,7 +40,7 @@ PageRouteBuilder<T> _slide<T>(Widget page) => PageRouteBuilder<T>(
   pageBuilder: (_, __, ___) => page,
   transitionsBuilder: (_, animation, __, child) {
     const begin = Offset(1.0, 0.0);
-    const end   = Offset.zero;
+    const end = Offset.zero;
     const curve = Curves.easeInOutCubic;
     return SlideTransition(
       position: Tween(begin: begin, end: end).animate(CurvedAnimation(parent: animation, curve: curve)),

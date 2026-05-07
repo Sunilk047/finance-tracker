@@ -29,10 +29,10 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, border) = switch (variant) {
-      AppButtonVariant.primary   => (AppColors.primary, AppColors.white, Colors.transparent),
+      AppButtonVariant.primary => (AppColors.primary, AppColors.white, Colors.transparent),
       AppButtonVariant.secondary => (AppColors.primaryLight, AppColors.primary, Colors.transparent),
-      AppButtonVariant.danger    => (AppColors.expenseLight, AppColors.expense, Colors.transparent),
-      AppButtonVariant.ghost     => (Colors.transparent, AppColors.ink700, AppColors.ink300),
+      AppButtonVariant.danger => (AppColors.expenseLight, AppColors.expense, Colors.transparent),
+      AppButtonVariant.ghost => (Colors.transparent, AppColors.ink700, AppColors.ink300),
     };
     return SizedBox(
       width: fullWidth ? double.infinity : null,
@@ -44,20 +44,31 @@ class AppButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           onTap: loading ? null : onTap,
           child: Container(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: border, width: 1.5)),
-            child: loading
-                ? Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: fg)))
-                : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
-              children: [
-                if (icon != null) ...[IconTheme(data: IconThemeData(color: fg, size: 18), child: icon!), const SizedBox(width: 8)],
-                Padding(
-                  padding: fullWidth ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(label, style: AppTextStyles.button.copyWith(color: fg)),
-                ),
-              ],
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: border, width: 1.5),
             ),
+            child: loading
+                ? Center(
+                    child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: fg)),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+                    children: [
+                      if (icon != null) ...[
+                        IconTheme(
+                          data: IconThemeData(color: fg, size: 18),
+                          child: icon!,
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Padding(
+                        padding: fullWidth ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(label, style: AppTextStyles.button.copyWith(color: fg)),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -85,14 +96,19 @@ class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
     required this.label,
-    this.hint, this.controller, this.validator,
+    this.hint,
+    this.controller,
+    this.validator,
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
-    this.suffix, this.prefix,
+    this.suffix,
+    this.prefix,
     this.maxLines = 1,
-    this.inputFormatters, this.onChanged,
+    this.inputFormatters,
+    this.onChanged,
     this.autofocus = false,
-    this.textInputAction, this.onFieldSubmitted,
+    this.textInputAction,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -103,11 +119,16 @@ class AppTextField extends StatelessWidget {
         Text(label, style: AppTextStyles.labelLarge),
         const SizedBox(height: 6),
         TextFormField(
-          controller: controller, validator: validator,
-          keyboardType: keyboardType, obscureText: obscureText,
-          maxLines: maxLines, inputFormatters: inputFormatters,
-          onChanged: onChanged, autofocus: autofocus,
-          textInputAction: textInputAction, onFieldSubmitted: onFieldSubmitted,
+          controller: controller,
+          validator: validator,
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+          maxLines: maxLines,
+          inputFormatters: inputFormatters,
+          onChanged: onChanged,
+          autofocus: autofocus,
+          textInputAction: textInputAction,
+          onFieldSubmitted: onFieldSubmitted,
           style: AppTextStyles.bodyLarge.copyWith(color: AppColors.ink900),
           decoration: InputDecoration(hintText: hint, suffixIcon: suffix, prefixIcon: prefix),
         ),
@@ -135,7 +156,10 @@ class AppCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: padding ?? const EdgeInsets.all(16),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.ink100)),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.ink100),
+          ),
           child: child,
         ),
       ),
@@ -156,9 +180,15 @@ class AccountAvatar extends StatelessWidget {
     final bg = AppColors.accountChips[colorIndex % AppColors.accountChips.length];
     final initials = name.trim().split(' ').take(2).map((w) => w.isNotEmpty ? w[0].toUpperCase() : '').join();
     return Container(
-      width: size, height: size,
+      width: size,
+      height: size,
       decoration: BoxDecoration(color: bg.withOpacity(0.15), borderRadius: BorderRadius.circular(size * 0.3)),
-      child: Center(child: Text(initials, style: TextStyle(fontSize: size * 0.36, fontWeight: FontWeight.w700, color: bg, letterSpacing: -0.5))),
+      child: Center(
+        child: Text(
+          initials,
+          style: TextStyle(fontSize: size * 0.36, fontWeight: FontWeight.w700, color: bg, letterSpacing: -0.5),
+        ),
+      ),
     );
   }
 }
@@ -172,11 +202,11 @@ class TransactionTypeBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: isIncome ? AppColors.incomeLight : AppColors.expenseLight,
-        borderRadius: BorderRadius.circular(6),
+      decoration: BoxDecoration(color: isIncome ? AppColors.incomeLight : AppColors.expenseLight, borderRadius: BorderRadius.circular(6)),
+      child: Text(
+        isIncome ? 'IN' : 'OUT',
+        style: AppTextStyles.labelSmall.copyWith(color: isIncome ? AppColors.income : AppColors.expense, letterSpacing: 0.5),
       ),
-      child: Text(isIncome ? 'IN' : 'OUT', style: AppTextStyles.labelSmall.copyWith(color: isIncome ? AppColors.income : AppColors.expense, letterSpacing: 0.5)),
     );
   }
 }
@@ -218,7 +248,13 @@ class AppFilterChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: selected ? AppColors.primary : AppColors.ink300),
         ),
-        child: Text(label, style: AppTextStyles.labelMedium.copyWith(color: selected ? AppColors.white : AppColors.ink500, fontWeight: selected ? FontWeight.w600 : FontWeight.w500)),
+        child: Text(
+          label,
+          style: AppTextStyles.labelMedium.copyWith(
+            color: selected ? AppColors.white : AppColors.ink500,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          ),
+        ),
       ),
     );
   }
@@ -233,11 +269,16 @@ class AppDividerWithLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(children: [
-        const Expanded(child: Divider()),
-        Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: Text(label, style: AppTextStyles.labelSmall)),
-        const Expanded(child: Divider()),
-      ]),
+      child: Row(
+        children: [
+          const Expanded(child: Divider()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text(label, style: AppTextStyles.labelSmall),
+          ),
+          const Expanded(child: Divider()),
+        ],
+      ),
     );
   }
 }
@@ -256,14 +297,22 @@ class EmptyState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 72, height: 72, decoration: const BoxDecoration(color: AppColors.ink100, shape: BoxShape.circle), child: Icon(icon, color: AppColors.ink300, size: 32)),
-          const SizedBox(height: 16),
-          Text(title, style: AppTextStyles.h3, textAlign: TextAlign.center),
-          const SizedBox(height: 6),
-          Text(subtitle, style: AppTextStyles.bodySmall, textAlign: TextAlign.center),
-          if (action != null) ...[const SizedBox(height: 20), action!],
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: const BoxDecoration(color: AppColors.ink100, shape: BoxShape.circle),
+              child: Icon(icon, color: AppColors.ink300, size: 32),
+            ),
+            const SizedBox(height: 16),
+            Text(title, style: AppTextStyles.h3, textAlign: TextAlign.center),
+            const SizedBox(height: 6),
+            Text(subtitle, style: AppTextStyles.bodySmall, textAlign: TextAlign.center),
+            if (action != null) ...[const SizedBox(height: 20), action!],
+          ],
+        ),
       ),
     );
   }
@@ -280,7 +329,8 @@ class ShimmerBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width, height: height,
+      width: width,
+      height: height,
       decoration: BoxDecoration(color: AppColors.ink100, borderRadius: BorderRadius.circular(radius)),
     );
   }

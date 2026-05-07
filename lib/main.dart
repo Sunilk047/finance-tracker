@@ -4,18 +4,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'features/accounts/bloc/account_bloc.dart';
+import 'features/accounts/bloc/accounts_bloc.dart';
 import 'features/auth/bloc/auth_bloc.dart';
-import 'features/transactions/bloc/transaction_bloc.dart';
+import 'features/transactions/bloc/transactions_bloc.dart';
 import 'services/supabase_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(
-    url: 'https://qluwcrdguizlatyslein.supabase.co',
-    anonKey: 'sb_publishable_Fddhu6EXZFQ1YgXZUbG_LA_WtFafOfu',
-  );
+  await Supabase.initialize(url: 'https://qluwcrdguizlatyslein.supabase.co', anonKey: 'sb_publishable_Fddhu6EXZFQ1YgXZUbG_LA_WtFafOfu');
 
   runApp(const FinanceTrackerApp());
 }
@@ -29,7 +26,7 @@ class FinanceTrackerApp extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => AuthBloc()..add(const AuthCheckRequested())),
+        BlocProvider(create: (_) => AuthBloc()..add(const AuthEvent.checkAuth())),
         BlocProvider(create: (_) => AccountsBloc()),
         BlocProvider(create: (_) => TransactionsBloc()),
       ],
